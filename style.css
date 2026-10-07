@@ -1,0 +1,153 @@
+   :root {
+            --theme-hue: 52; /* Dynamic: 52 (Neon Yellow) -> 0 (Neon Red) */
+            --theme-main: hsl(var(--theme-hue), 100%, 50%);
+            --theme-dark: hsl(var(--theme-hue), 100%, 25%);
+            --theme-glow: hsla(var(--theme-hue), 100%, 50%, 0.6);
+            --bg-dark: #0d0d11;
+            --panel-bg: #14141a;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--theme-main);
+            font-family: 'Press Start 2P', monospace;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(hsla(var(--theme-hue), 50%, 15%, 0.4) 15%, transparent 16%),
+                radial-gradient(hsla(var(--theme-hue), 50%, 15%, 0.4) 15%, transparent 16%);
+            background-size: 28px 28px;
+            background-position: 0 0, 14px 14px;
+            transition: background-image 0.5s ease;
+        }
+
+        /* CRT Overlay Effect */
+        .crt-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(
+                rgba(18, 16, 16, 0) 50%, 
+                rgba(0, 0, 0, 0.3) 50%
+            );
+            background-size: 100% 4px;
+            z-index: 40;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        /* Dynamic Theme Borders & Glows */
+        .arcade-border {
+            border: 4px solid var(--theme-main);
+            box-shadow: 
+                0 0 12px var(--theme-glow),
+                inset 0 0 8px var(--theme-glow);
+            border-radius: 6px;
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .arcade-btn {
+            background-color: #16161f;
+            color: var(--theme-main);
+            border: 3px solid var(--theme-main);
+            box-shadow: 3px 3px 0px var(--theme-dark);
+            transition: transform 0.05s ease, background-color 0.2s, color 0.2s, border-color 0.4s;
+            text-transform: uppercase;
+        }
+
+        .arcade-btn:active, .arcade-btn.pressed {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--theme-dark);
+            background-color: var(--theme-main);
+            color: #000;
+        }
+
+        .text-glow {
+            text-shadow: 0 0 8px var(--theme-glow);
+            transition: text-shadow 0.4s ease, color 0.4s ease;
+        }
+
+        /* Speech Bubble for Mascot */
+        .speech-bubble {
+            position: relative;
+            background: var(--theme-main);
+            color: #000;
+            border-radius: 6px;
+            font-size: 8px;
+            padding: 5px;
+            text-align: center;
+            font-weight: bold;
+            box-shadow: 2px 2px 0px var(--theme-dark);
+            transition: background-color 0.4s ease;
+        }
+
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 7px 5px 0;
+            border-style: solid;
+            border-color: var(--theme-main) transparent;
+            display: block;
+            width: 0;
+            transition: border-color 0.4s ease;
+        }
+
+        /* Floating Score Text Overlay */
+        .floating-text {
+            position: absolute;
+            pointer-events: none;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 8px var(--theme-main), 2px 2px 0 #000;
+            animation: floatUpFade 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+            z-index: 30;
+        }
+
+        @keyframes floatUpFade {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, 0) scale(0.6);
+            }
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -15px) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -60px) scale(0.9);
+            }
+        }
+
+        /* Screen Shake Animation */
+        .screen-shake {
+            animation: shake 0.15s ease-in-out;
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-3px, 3px); }
+            50% { transform: translate(3px, -3px); }
+            75% { transform: translate(-2px, -2px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: var(--theme-main); }

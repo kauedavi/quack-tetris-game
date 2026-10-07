@@ -1,355 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QUACK TETRIS - Edição Arcade Retro</title>
-
-    <!-- Google Fonts Pixel Art -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <style>
-        :root {
-            --theme-hue: 52; /* Dynamic: 52 (Neon Yellow) -> 0 (Neon Red) */
-            --theme-main: hsl(var(--theme-hue), 100%, 50%);
-            --theme-dark: hsl(var(--theme-hue), 100%, 25%);
-            --theme-glow: hsla(var(--theme-hue), 100%, 50%, 0.6);
-            --bg-dark: #0d0d11;
-            --panel-bg: #14141a;
-        }
-
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: var(--theme-main);
-            font-family: 'Press Start 2P', monospace;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow-x: hidden;
-            background-image: 
-                radial-gradient(hsla(var(--theme-hue), 50%, 15%, 0.4) 15%, transparent 16%),
-                radial-gradient(hsla(var(--theme-hue), 50%, 15%, 0.4) 15%, transparent 16%);
-            background-size: 28px 28px;
-            background-position: 0 0, 14px 14px;
-            transition: background-image 0.5s ease;
-        }
-
-        /* CRT Overlay Effect */
-        .crt-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: linear-gradient(
-                rgba(18, 16, 16, 0) 50%, 
-                rgba(0, 0, 0, 0.3) 50%
-            );
-            background-size: 100% 4px;
-            z-index: 40;
-            pointer-events: none;
-            opacity: 0.5;
-        }
-
-        /* Dynamic Theme Borders & Glows */
-        .arcade-border {
-            border: 4px solid var(--theme-main);
-            box-shadow: 
-                0 0 12px var(--theme-glow),
-                inset 0 0 8px var(--theme-glow);
-            border-radius: 6px;
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-
-        .arcade-btn {
-            background-color: #16161f;
-            color: var(--theme-main);
-            border: 3px solid var(--theme-main);
-            box-shadow: 3px 3px 0px var(--theme-dark);
-            transition: transform 0.05s ease, background-color 0.2s, color 0.2s, border-color 0.4s;
-            text-transform: uppercase;
-        }
-
-        .arcade-btn:active, .arcade-btn.pressed {
-            transform: translate(2px, 2px);
-            box-shadow: 1px 1px 0px var(--theme-dark);
-            background-color: var(--theme-main);
-            color: #000;
-        }
-
-        .text-glow {
-            text-shadow: 0 0 8px var(--theme-glow);
-            transition: text-shadow 0.4s ease, color 0.4s ease;
-        }
-
-        /* Speech Bubble for Mascot */
-        .speech-bubble {
-            position: relative;
-            background: var(--theme-main);
-            color: #000;
-            border-radius: 6px;
-            font-size: 8px;
-            padding: 5px;
-            text-align: center;
-            font-weight: bold;
-            box-shadow: 2px 2px 0px var(--theme-dark);
-            transition: background-color 0.4s ease;
-        }
-
-        .speech-bubble:after {
-            content: '';
-            position: absolute;
-            bottom: -7px;
-            left: 50%;
-            transform: translateX(-50%);
-            border-width: 7px 5px 0;
-            border-style: solid;
-            border-color: var(--theme-main) transparent;
-            display: block;
-            width: 0;
-            transition: border-color 0.4s ease;
-        }
-
-        /* Floating Score Text Overlay */
-        .floating-text {
-            position: absolute;
-            pointer-events: none;
-            font-size: 14px;
-            font-weight: bold;
-            color: #ffffff;
-            text-shadow: 0 0 8px var(--theme-main), 2px 2px 0 #000;
-            animation: floatUpFade 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
-            z-index: 30;
-        }
-
-        @keyframes floatUpFade {
-            0% {
-                opacity: 0;
-                transform: translate(-50%, 0) scale(0.6);
-            }
-            20% {
-                opacity: 1;
-                transform: translate(-50%, -15px) scale(1.2);
-            }
-            100% {
-                opacity: 0;
-                transform: translate(-50%, -60px) scale(0.9);
-            }
-        }
-
-        /* Screen Shake Animation */
-        .screen-shake {
-            animation: shake 0.15s ease-in-out;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(-3px, 3px); }
-            50% { transform: translate(3px, -3px); }
-            75% { transform: translate(-2px, -2px); }
-            100% { transform: translate(0, 0); }
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: var(--theme-main); }
-    </style>
-</head>
-<body class="p-2 sm:p-4 select-none">
-
-    <!-- CRT Visual Filter -->
-    <div class="crt-overlay"></div>
-
-    <div id="game-container" class="w-full max-w-4xl flex flex-col items-center">
-        
-        <!-- HEADER / LOGO -->
-        <header class="mb-2 text-center">
-            <h1 id="main-title" class="text-xl sm:text-3xl font-bold tracking-widest text-glow flex items-center justify-center gap-2">
-                <span>🦆</span> QUACK TETRIS <span>🦆</span>
-            </h1>
-            <div id="level-subtitle" class="text-[9px] sm:text-xs mt-1 font-mono tracking-wider opacity-90">
-                NÍVEL 1 • TEMA AMARELO
-            </div>
-        </header>
-
-        <!-- MAIN LAYOUT WRAPPER -->
-        <div class="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-3 w-full">
-            
-            <!-- LEFT PANEL: Mascot, Hold & Tools -->
-            <div class="flex lg:flex-col flex-row items-center justify-between w-full lg:w-44 gap-2 bg-[#14141a] p-2.5 arcade-border">
-                
-                <!-- Mascot Box -->
-                <div class="flex flex-col items-center justify-center relative w-full">
-                    <div id="duck-bubble" class="speech-bubble mb-1.5 opacity-0 transition-opacity duration-300">
-                        QUACK!
-                    </div>
-                    <canvas id="duckCanvas" width="80" height="80" class="w-16 h-16 sm:w-20 sm:h-20 bg-black/50 border border-yellow-900 rounded"></canvas>
-                    <span id="duck-status-text" class="text-[8px] mt-1 tracking-tighter opacity-80">PATO QUACK</span>
-                </div>
-
-                <!-- Hold Piece Box -->
-                <div class="flex flex-col items-center justify-center w-full">
-                    <span class="text-[8px] sm:text-[9px] mb-1 opacity-90">GUARDAR [C]</span>
-                    <div class="bg-black/70 p-1.5 border border-yellow-900/50 rounded">
-                        <canvas id="holdCanvas" width="70" height="70" class="w-14 h-14 sm:w-16 sm:h-16"></canvas>
-                    </div>
-                </div>
-
-                <!-- Action Controls -->
-                <div class="flex lg:flex-col flex-row gap-1.5 w-full">
-                    <button id="btn-audio" class="arcade-btn py-1.5 px-2 text-[8px] w-full flex items-center justify-center gap-1">
-                        <span id="audio-icon">🔊</span> <span id="audio-text">SOM</span>
-                    </button>
-                    <button id="btn-rank" class="arcade-btn py-1.5 px-2 text-[8px] w-full flex items-center justify-center gap-1">
-                        🏆 RANK
-                    </button>
-                </div>
-            </div>
-
-            <!-- CENTER PANEL: Game Canvas & Floating Overlays -->
-            <div id="canvas-wrapper" class="relative flex flex-col items-center">
-                <div id="arcade-frame" class="bg-black p-2 arcade-border relative">
-                    <canvas id="tetrisCanvas" width="300" height="600" class="w-[250px] h-[500px] sm:w-[300px] sm:h-[600px]"></canvas>
-
-                    <!-- Pause Overlay -->
-                    <div id="pause-overlay" class="absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-4 hidden z-20">
-                        <h2 class="text-xl text-glow">PAUSADO</h2>
-                        <p class="text-[9px] text-center px-4 text-white/80">Pressione P para voltar</p>
-                        <button id="btn-resume" class="arcade-btn px-4 py-2 text-xs mt-1">CONTINUAR</button>
-                    </div>
-
-                    <!-- Floating Score Container -->
-                    <div id="floating-text-container" class="absolute inset-0 pointer-events-none overflow-hidden z-30"></div>
-                </div>
-            </div>
-
-            <!-- RIGHT PANEL: Stats & Next Piece -->
-            <div class="flex lg:flex-col flex-row flex-wrap items-center justify-between w-full lg:w-48 gap-2 bg-[#14141a] p-2.5 arcade-border">
-                
-                <!-- Next Piece Box -->
-                <div class="flex flex-col items-center justify-center w-1/2 lg:w-full">
-                    <span class="text-[8px] sm:text-[9px] mb-1 opacity-90">PRÓXIMA</span>
-                    <div class="bg-black/70 p-1.5 border border-yellow-900/50 rounded">
-                        <canvas id="nextCanvas" width="70" height="70" class="w-14 h-14 sm:w-16 sm:h-16"></canvas>
-                    </div>
-                </div>
-
-                <!-- Stats Dashboard -->
-                <div class="flex flex-col gap-1.5 w-1/2 lg:w-full text-left">
-                    <div class="bg-black/50 p-2 border border-yellow-900/50 rounded">
-                        <div class="text-[7px] opacity-70">PONTOS</div>
-                        <div id="score-val" class="text-xs sm:text-sm font-bold truncate">0</div>
-                    </div>
-
-                    <div class="bg-black/50 p-2 border border-yellow-900/50 rounded">
-                        <div class="text-[7px] opacity-70">RECORD</div>
-                        <div id="high-score-val" class="text-xs sm:text-sm font-bold truncate">0</div>
-                    </div>
-
-                    <div class="flex justify-between gap-1">
-                        <div class="bg-black/50 p-1.5 border border-yellow-900/50 rounded w-1/2">
-                            <div class="text-[7px] opacity-70">NÍVEL</div>
-                            <div id="level-val" class="text-xs">1</div>
-                        </div>
-                        <div class="bg-black/50 p-1.5 border border-yellow-900/50 rounded w-1/2">
-                            <div class="text-[7px] opacity-70">COMBO</div>
-                            <div id="combo-val" class="text-xs">x0</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Start / Pause Buttons -->
-                <div class="w-full mt-1 flex flex-col gap-1.5">
-                    <button id="btn-start" class="arcade-btn py-2 text-xs w-full font-bold">
-                        JOGAR
-                    </button>
-                    <button id="btn-pause" class="arcade-btn py-1.5 text-[8px] w-full" disabled>
-                        PAUSAR [P]
-                    </button>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TOUCH / ON-SCREEN MOBILE CONTROLS -->
-        <div class="w-full max-w-md mt-2 flex flex-col gap-2 px-1 lg:hidden">
-            <div class="flex justify-center gap-1.5">
-                <button id="touch-hold" class="arcade-btn py-3 text-[10px] flex-1">HOLD 📥</button>
-                <button id="touch-rotate" class="arcade-btn py-3 text-[10px] flex-1">GIRAR ↻</button>
-                <button id="touch-hard" class="arcade-btn py-3 text-[10px] flex-1 font-bold">ESPAÇO ⚡</button>
-            </div>
-            <div class="flex justify-center gap-1.5">
-                <button id="touch-left" class="arcade-btn py-4 text-sm flex-1">◀</button>
-                <button id="touch-down" class="arcade-btn py-4 text-sm flex-1">▼</button>
-                <button id="touch-right" class="arcade-btn py-4 text-sm flex-1">▶</button>
-            </div>
-        </div>
-
-    </div>
-
-    <!-- MODAL: LEADERBOARD / RANKING -->
-    <div id="modal-rank" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-[#14141a] arcade-border p-5 max-w-md w-full flex flex-col gap-4 text-center">
-            <h2 class="text-lg text-glow">🏆 HALL DA FAMA 🏆</h2>
-            <div class="max-h-60 overflow-y-auto pr-1">
-                <table class="w-full text-left text-[9px] border-collapse">
-                    <thead>
-                        <tr class="border-b border-yellow-800 text-yellow-500">
-                            <th class="p-1">#</th>
-                            <th class="p-1">NOME</th>
-                            <th class="p-1 text-right">PONTOS</th>
-                            <th class="p-1 text-right">NÍVEL</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboard-body">
-                        <!-- Dynamic Rows -->
-                    </tbody>
-                </table>
-            </div>
-            <button id="btn-close-rank" class="arcade-btn py-2 text-xs w-full">FECHAR</button>
-        </div>
-    </div>
-
-    <!-- MODAL: GAME OVER & RECORD ENTRY -->
-    <div id="modal-gameover" class="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-[#14141a] arcade-border p-5 max-w-sm w-full flex flex-col gap-4 text-center">
-            <h2 class="text-xl text-glow">FIM DE JOGO!</h2>
-            <p id="gameover-duck-msg" class="text-[10px] text-white/80">O Pato Quack tentou o seu melhor!</p>
-
-            <div class="bg-black/70 p-3 border border-yellow-800 rounded flex flex-col gap-1">
-                <span class="text-[8px] opacity-70">SUA PONTUAÇÃO</span>
-                <span id="final-score-val" class="text-lg font-bold">0</span>
-            </div>
-
-            <div class="flex flex-col gap-2 text-left">
-                <label class="text-[8px]">DIGITE SEU NOME PARA O RANKING:</label>
-                <input type="text" id="player-name-input" maxlength="10" placeholder="PATO" 
-                       class="bg-black border-2 border-yellow-500 px-2 py-2 text-xs uppercase font-mono rounded focus:outline-none text-center">
-            </div>
-
-            <div class="flex gap-2 mt-1">
-                <button id="btn-save-score" class="arcade-btn py-2.5 text-xs flex-1 font-bold">SALVAR</button>
-                <button id="btn-restart-game" class="arcade-btn py-2.5 text-xs flex-1">NOVO JOGO</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        class RetroAudio {
+ class RetroAudio {
             constructor() {
                 this.ctx = null;
                 this.muted = false;
@@ -559,6 +208,12 @@
         const COLS = 10;
         const ROWS = 20;
         const BLOCK_SIZE = 30;
+        const LOCK_SCORE = 10;
+        const LINES_PER_LEVEL = 10;
+        const INITIAL_DROP_INTERVAL = 1000;
+        const DROP_INTERVAL_PER_LEVEL = 40;
+        const MIN_DROP_INTERVAL = 250;
+        const MAX_THEME_LEVEL = 13;
 
         const PIECES = {
             'I': { shape: [[0,0,0,0],[1,1,1,1],[0,0,0,0],[0,0,0,0]], color: '#00f0f0', border: '#80ffff' },
@@ -603,7 +258,7 @@
                 this.isPlaying = false;
 
                 this.dropCounter = 0;
-                this.dropInterval = 1000;
+                this.dropInterval = INITIAL_DROP_INTERVAL;
                 this.lastTime = 0;
 
                 this.duck = new DuckMascot('duckCanvas');
@@ -615,13 +270,10 @@
             }
 
             updateThemeColor() {
-                // Hue starts at 52 (Neon Yellow) and smoothly drops to 0 (Neon Red) as score/level increases
-                // Reaches pure red around Level 12 or 5000 points
+                // Hue shifts from neon yellow to neon red over the first 13 levels.
                 const maxHue = 52; // Yellow
                 const minHue = 0;  // Red
-                const scoreFactor = Math.min(1, this.score / 5000);
-                const levelFactor = Math.min(1, (this.level - 1) / 12);
-                const progress = Math.max(scoreFactor, levelFactor);
+                const progress = Math.min(1, (this.level - 1) / (MAX_THEME_LEVEL - 1));
 
                 const currentHue = Math.floor(maxHue - (progress * (maxHue - minHue)));
 
@@ -644,7 +296,7 @@
                 this.lines = 0;
                 this.level = 1;
                 this.combo = 0;
-                this.dropInterval = 1000;
+                this.dropInterval = INITIAL_DROP_INTERVAL;
                 this.gameOver = false;
                 this.isPaused = false;
                 this.isPlaying = true;
@@ -759,9 +411,6 @@
                 if (!this.isPlaying || this.isPaused) return;
                 if (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
                     this.currentPiece.y++;
-                    this.score += 1;
-                    this.updateThemeColor();
-                    this.updateUI();
                 } else {
                     this.lockPiece();
                 }
@@ -771,13 +420,10 @@
             hardDrop() {
                 if (!this.isPlaying || this.isPaused) return;
                 
-                let drops = 0;
                 while (!this.checkCollision(this.currentPiece.x, this.currentPiece.y + 1, this.currentPiece.shape)) {
                     this.currentPiece.y++;
-                    drops++;
                 }
 
-                this.score += drops * 2;
                 audio.playHardDrop();
                 
                 // Trigger screen shake and particle impact
@@ -830,6 +476,8 @@
             }
 
             lockPiece() {
+                this.score += LOCK_SCORE;
+
                 const shape = this.currentPiece.shape;
                 for (let r = 0; r < shape.length; r++) {
                     for (let c = 0; c < shape[r].length; c++) {
@@ -876,10 +524,11 @@
                     this.score += earned;
                     this.lines += count;
                     
-                    // Dynamic Speed Progression
-                    // Balance curve: Drop interval decreases based on score & level
-                    this.level = Math.floor(this.score / 600) + 1;
-                    this.dropInterval = Math.max(90, 1000 - (this.level - 1) * 75);
+                    this.level = Math.floor(this.lines / LINES_PER_LEVEL) + 1;
+                    this.dropInterval = Math.max(
+                        MIN_DROP_INTERVAL,
+                        INITIAL_DROP_INTERVAL - (this.level - 1) * DROP_INTERVAL_PER_LEVEL
+                    );
 
                     // Clear lines from grid
                     clearedRows.forEach(r => {
@@ -1250,6 +899,3 @@
             document.getElementById('modal-gameover').classList.add('hidden');
             game.start();
         });
-    </script>
-</body>
-</html>
