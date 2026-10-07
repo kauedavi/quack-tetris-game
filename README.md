@@ -1,2 +1,13 @@
-# quack-tetris-game
-Jogo de tereis com a temática de pato para se entreter
+# QUACK TETRIS GAME
+![pato](https://i.pinimg.com/originals/e2/36/72/e23672db81058e852cd8681d0fc4576c.gif)
+
+## ESSE JOGO É TOTALMENTE VIVECODADO, APENAS PARA PASSAR O TEMPO, APROVEITE BRO.
+
+BENEFICIOS:
+ ```
+CANSADO DE NÃO TER JOGOS POR CAUSA DO FIREWALL DE ALGO? APENAS RODE O INDEX E APROVEITE!
+```
+```
+DOPAPPINA GRATIS
+```
+
