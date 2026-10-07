@@ -530,14 +530,15 @@
                         INITIAL_DROP_INTERVAL - (this.level - 1) * DROP_INTERVAL_PER_LEVEL
                     );
 
-                    // Clear lines from grid
-                    clearedRows.forEach(r => {
-                        this.grid.splice(r, 1);
-                        this.grid.unshift(Array(COLS).fill(0));
-                    });
-
                     // Generate particles along lines
                     clearedRows.forEach(r => this.createLineParticles(r));
+
+                    // Remove all completed rows together so row indexes cannot shift mid-clear.
+                    const clearedRowSet = new Set(clearedRows);
+                    this.grid = this.grid.filter((_, row) => !clearedRowSet.has(row));
+                    while (this.grid.length < ROWS) {
+                        this.grid.unshift(Array(COLS).fill(0));
+                    }
 
                     // Floating Score Text & Combo Banners
                     let textMsg = `+${earned}`;
@@ -843,7 +844,23 @@
 
         function saveScore(name, score, level) {
             const scores = getScores();
-            scores.push({ name: name || 'PATO', score, level, date: new Date().toLocaleDateString('pt-BR') });
+            const playerName = name.trim() || 'PATO';
+            const existingScoreIndex = scores.findIndex(
+                entry => entry.name.toLocaleLowerCase() === playerName.toLocaleLowerCase()
+            );
+
+            if (existingScoreIndex !== -1) {
+                if (score <= scores[existingScoreIndex].score) return;
+                scores[existingScoreIndex] = {
+                    ...scores[existingScoreIndex],
+                    score,
+                    level,
+                    date: new Date().toLocaleDateString('pt-BR')
+                };
+            } else {
+                scores.push({ name: playerName, score, level, date: new Date().toLocaleDateString('pt-BR') });
+            }
+
             scores.sort((a, b) => b.score - a.score);
             const topScores = scores.slice(0, 5); // Keep Top 5
             localStorage.setItem('quack_tetris_scores', JSON.stringify(topScores));
